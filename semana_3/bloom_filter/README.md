@@ -25,7 +25,8 @@ make run
 Salida esperada:
 ```
 gato -> true  (probablemente esta)
-elefante -> false (seguro NO esta)
+casa -> false (seguro NO esta)
+sol -> true  (FALSO POSITIVO: no se inserto)
 ```
 
 ## Pseudocódigo base
@@ -51,12 +52,19 @@ procedure Lookup(item)
     return true
 ```
 
-Las `k` funciones hash se simulan con la fórmula:
-```
-pos = (hash1(item) + i * hash2(item)) % m
-```
-donde `hash1` suma los valores ASCII del string (módulo 101) y `hash2` suma los
-valores ASCII ponderados por la posición (módulo 103).
+Se usan `k = 3` funciones hash. Las tres suman los códigos ASCII de la cadena,
+pero con distinta ponderación y distinto primo:
+
+| Función | Fórmula |
+|---------|---------|
+| `hash1(item)` | `(Σ ascii)` % 101 |
+| `hash2(item)` | `(Σ ascii·(pos+1))` % 103 |
+| `hash3(item)` | `(Σ ascii·(pos+1)²)` % 107 |
+
+`hi(item, i, m)` elige la `i`-ésima función y le aplica `% m`, de modo que
+`pos = hi(item, i, m)` corresponde a `h_i(item) mod m` del pseudocódigo.
+
+En este ejemplo `m = 10` y `k = 3`, igual que el ejemplo visto en clase.
 
 ## Análisis de complejidad
 
@@ -66,7 +74,7 @@ valores ASCII ponderados por la posición (módulo 103).
 | `insert`     | O(k)        | calcula `k` posiciones y marca `k` bits            |
 | `lookup`     | O(k)        | revisa como máximo `k` bits (puede cortar antes)   |
 
-> `hash1` y `hash2` recorren el string, así que en rigor cada operación es
+> Cada `hash_i` recorre el string, así que en rigor `insert` y `lookup` son
 > O(k · L) siendo L el largo del `item`; como L se considera pequeño y constante,
 > se resume como O(k).
 
